@@ -24,9 +24,9 @@ def feat_to_string(v):
 
 def format_data_wports(data_x, n_examples):
     data_ip = decimal2binary(data_x[:n_examples, np.arange(8)])
-    data_proto = data_x[:n_examples, 8].reshape(-1, 1)
-    data_srcport = uint16_to_binary(data_x[:n_examples, 9].reshape(-1, 1))
-    data_dstport = uint16_to_binary(data_x[:n_examples, 10].reshape(-1, 1))
+    data_srcport = uint16_to_binary(data_x[:n_examples, 8].reshape(-1, 1))
+    data_dstport = uint16_to_binary(data_x[:n_examples, 9].reshape(-1, 1))
+    data_proto = data_x[:n_examples, 10].reshape(-1, 1)
     return np.concatenate((data_ip, data_srcport, data_dstport, data_proto), axis=1)
 
 def decimal2binary(x):
@@ -41,19 +41,22 @@ def get_data(data_list, feat_idx, n_examples):
 
     data_y = np.array([])
     for data in data_list:
-        data = np.load(data).item()
-        # NOTE: order of the features are changed!
+        data = np.load(data, allow_pickle=True).item()
         data_b = format_data_wports(data['x'], n_examples)
         data_x = np.concatenate((data_x, data_b))
         data_y = np.concatenate((data_y, data['y'][:n_examples]))
+
+    print("data_x: ", data_x)
+    print("data_x.shape: ", data_x.shape)
+    print("data_y: ", data_y)
+    print("data_y.shape: ", data_y.shape)
     return data_x, data_y
 
 def get_data_list(data_list, feat_idx, n_examples):
     data_x = []
     data_y = []
     for data in data_list:
-        data = np.load(data).item()
-        # NOTE: order of the features are changed!
+        data = np.load(data, allow_pickle=True).item()
         data_b = format_data_wports(data['x'], n_examples)
         data_x.append(data_b)
         data_y.append(data['y'][:n_examples])
