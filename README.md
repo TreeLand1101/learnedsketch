@@ -27,6 +27,7 @@ The code is developed under the following configurations:
 - Tensorflow-GPU 1.4.0, CUDA 8.0.61, cuDNN 6
 
 ~~To install required python packages, run ```pip install -r requirement.txt```.~~
+
 Setting up LearnedSketch environments in WSL2 using Conda (Ongoing): https://hackmd.io/@p76124265/learnedsketch_setting
 
 For setting up tensorflow with GPU support (CUDA, cuDNN): https://www.tensorflow.org/install
