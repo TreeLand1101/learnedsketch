@@ -5,8 +5,6 @@ import argparse
 import random
 import datetime
 import numpy as np
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
-os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 import tensorflow as tf
 
 from utils.utils import get_stat, git_log, AverageMeter, keep_latest_files, get_data, get_data_list
@@ -18,6 +16,9 @@ import time
 import sys
 import os
 import datetime
+
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
+# os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
 def construct_graph(args):
     with tf.variable_scope("nhh"):

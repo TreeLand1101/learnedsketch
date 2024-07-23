@@ -14,7 +14,7 @@ python3 run_ip_model.py \
             ./data/caida/equinix-chicago.dirA.20160121-140000.UTC.anon_00007_20160121220007.npy \
     --valid ./data/caida/equinix-chicago.dirA.20160121-140000.UTC.anon_00008_20160121220008.npy \
     --test  ./data/caida/equinix-chicago.dirA.20160121-140000.UTC.anon_00009_20160121220009.npy \
-    --save model --rnn_hiddens 64 --port_hiddens 16 8 --hiddens 32 32 --batch_size 512 --n_epoch 30 --eval_n_epochs 10 --lr 0.0001 --regress_min 65
+    --save model --rnn_hiddens 64 --port_hiddens 16 8 --hiddens 32 32 --batch_size 8192 --n_epoch 30 --eval_n_epochs 10 --lr 0.0001 --regress_min 65
 
 ## resume training from an earlier model checkpoint
 
