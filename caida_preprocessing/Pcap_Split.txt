@@ -1,0 +1,1 @@
+Using a different hash function to map the element to {−1, 1}, which determines whether the counter is -1 or +1.

@@ -5,16 +5,9 @@
 
 python3 run_ip_model.py \
     --train ./data/caida/equinix-chicago.dirA.20160121-140000.UTC.anon_00000_20160121220000.npy \
-            ./data/caida/equinix-chicago.dirA.20160121-140000.UTC.anon_00001_20160121220001.npy \
-            ./data/caida/equinix-chicago.dirA.20160121-140000.UTC.anon_00002_20160121220002.npy \
-            ./data/caida/equinix-chicago.dirA.20160121-140000.UTC.anon_00003_20160121220003.npy \
-            ./data/caida/equinix-chicago.dirA.20160121-140000.UTC.anon_00004_20160121220004.npy \
-            ./data/caida/equinix-chicago.dirA.20160121-140000.UTC.anon_00005_20160121220005.npy \
-            ./data/caida/equinix-chicago.dirA.20160121-140000.UTC.anon_00006_20160121220006.npy \
-            ./data/caida/equinix-chicago.dirA.20160121-140000.UTC.anon_00007_20160121220007.npy \
-    --valid ./data/caida/equinix-chicago.dirA.20160121-140000.UTC.anon_00008_20160121220008.npy \
-    --test  ./data/caida/equinix-chicago.dirA.20160121-140000.UTC.anon_00009_20160121220009.npy \
-    --save model --rnn_hiddens 64 --port_hiddens 16 8 --hiddens 32 32 --batch_size 8192 --n_epoch 30 --eval_n_epochs 10 --lr 0.0001 --regress_min 65
+    --valid ./data/caida/equinix-chicago.dirA.20160121-140000.UTC.anon_00001_20160121220001.npy \
+    --test  ./data/caida/equinix-chicago.dirA.20160121-140000.UTC.anon_00002_20160121220002.npy \
+    --save model --rnn_hiddens 64 --port_hiddens 16 8 --hiddens 32 32 --batch_size 256 --n_epoch 5 --eval_n_epochs 5 --lr 0.0001 --regress_min 65
 
 ## resume training from an earlier model checkpoint
 
@@ -34,12 +27,12 @@ python3 run_ip_model.py \
 
 ## inference
 
-#python3 run_ip_model.py \
-#    --train ./data/caida/equinix-chicago.dirA.20160121-130000.ports.npy \
-#    --valid ./data/caida/equinix-chicago.dirA.20160121-130700.ports.npy \
-#    --test  ./data/caida/equinix-chicago.dirA.20160121-130900.ports.npy \
-#    --save pred_exp20_ip_rnn_10min_r1-p2-h2_rmin65_ru64_bs512_ep350_1309 --rnn_hiddens 64 --port_hiddens 16 8 --hiddens 32 32 --batch_size 512 --n_epoch 2000 --lr 0.0001 --regress_min 65 \
-#    --resume model/exp20_ip_rnn_10min_r1-p2-h2_rmin65_ru64_bs512_ep100_20180506-230316_ep350.69 --evaluate
+python3 run_ip_model.py \
+    --train ./data/caida/equinix-chicago.dirA.20160121-140000.UTC.anon_00000_20160121220000.npy \
+    --valid ./data/caida/equinix-chicago.dirA.20160121-140000.UTC.anon_00001_20160121220001.npy \
+    --test  ./data/caida/equinix-chicago.dirA.20160121-140000.UTC.anon_00002_20160121220002.npy \
+    --save pred_model_20240729-190049_ep0.69 --rnn_hiddens 64 --port_hiddens 16 8 --hiddens 32 32 --batch_size 512 --n_epoch 2000 --lr 0.0001 --regress_min 65 \
+    --resume model/model_20240729-190049_ep0.69 --evaluate
 
 
 

@@ -71,7 +71,7 @@ if __name__ == '__main__':
                 loss_cutoff, space_actual = get_best_loss_space(data)
                 ax.plot(space_actual + args.model_sizes[i], loss_cutoff, label=args.model_names[i])
 
-    ax.set_ylabel('loss')
+    ax.set_ylabel('Average Error per item (Frequency)')
     ax.set_xlabel('space (MB)')
     if args.y_lim:
         ax.set_ylim(args.y_lim)
