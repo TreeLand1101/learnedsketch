@@ -4,13 +4,13 @@
 # replace ${tmin} to generate results for other minutes
 tmin=1400
 
-## count min
+# count min
 
-# python3 count_min_param.py \
-#     --space_list 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1 1.2 1.4 1.6 1.8 2 3 4 \
-#     --n_hashes 1 2 3 4 \
-#     --save cmin_ip_${tmin} --n_workers 30 \
-#     --data ./data/caida/equinix-chicago.dirA.20160121-${tmin}00.UTC.anon_00000_20160121220000.npy
+python3 count_min_param.py \
+    --space_list 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1 1.2 1.4 1.6 1.8 2 3 4 \
+    --n_hashes 1 2 3 4 \
+    --save cmin_ip_${tmin} --n_workers 30 \
+    --data ./data/caida/equinix-chicago.dirA.20160121-${tmin}00.UTC.anon_00000_20160121220000.npy
 
 # ## lookup table + count min
 

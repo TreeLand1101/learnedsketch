@@ -7,5 +7,6 @@ param_results/
 predictions/
 summary/
 caida_preprocessing/*.npy
+caida_preprocessing/*.npz
 caida_preprocessing/*pcap 
 *Zone.Identifier
