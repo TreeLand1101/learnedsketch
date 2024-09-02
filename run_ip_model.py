@@ -10,15 +10,9 @@ import tensorflow as tf
 from utils.utils import get_stat, git_log, AverageMeter, keep_latest_files, get_data, get_data_list
 from utils.nn_utils import fc_layers, write_summary
 
-import tensorflow as tf
-import numpy as np
-import time
-import sys
-import os
-import datetime
-
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
 os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 
 def construct_graph(args):
     with tf.variable_scope("nhh"):
@@ -205,6 +199,55 @@ def run_training(model, train_x, train_y, valid_x, valid_y, test_x, test_y, args
         fp.write(res+'\n')
 
 
+def calculate_model_memory_size():
+    
+    total_memory_size = 0
+
+    dtype_size_map = {
+        'float32': 4,
+        'float64': 8,
+        'int32': 4,
+        'int64': 8,
+    }
+
+    trainable_memory_size = 0
+    non_trainable_memory_size = 0
+
+    print('\n\n\n==== Variable Memory Sizes ====\n')
+    for variable in tf.global_variables():
+        shape = variable.get_shape()
+        variable_name = variable.name
+        variable_dtype = variable.dtype.base_dtype
+        variable_parameters = 1
+
+        for dim in shape:
+            variable_parameters *= dim.value
+
+        bytes_per_element = dtype_size_map.get(variable_dtype.name, 4)
+        variable_memory_size = variable_parameters * bytes_per_element
+
+        if variable in tf.trainable_variables():
+            memory_category = 'trainable'
+            trainable_memory_size += variable_memory_size
+        else:
+            memory_category = 'non-trainable'
+            non_trainable_memory_size += variable_memory_size
+
+        print(f"Variable: {variable_name}")
+        print(f"  Category: {memory_category}")
+        print(f"  Shape: {shape}")
+        print(f"  Data type: {variable_dtype} ({bytes_per_element} bytes per element)")
+        print(f"  Number of parameters: {variable_parameters}")
+        print(f"  Memory size: {variable_memory_size / 1024:.2f} KB ({variable_memory_size} bytes)")
+        print("------------------------")
+
+    total_memory_size = trainable_memory_size + non_trainable_memory_size
+    print(f"Trainable parameters memory size: {trainable_memory_size / 1024 :.2f} KB ({trainable_memory_size} bytes)")
+    print(f"Non-trainable parameters memory size: {non_trainable_memory_size / 1024:.2f} KB ({non_trainable_memory_size} bytes)")
+    print(f"Total parameters memory size: {total_memory_size / 1024:.2f} KB ({total_memory_size} bytes)")
+
+
+
 if __name__ == '__main__':
     argparser = argparse.ArgumentParser(sys.argv[0])
     argparser.add_argument("--train", type=str, nargs='*', help="training data (.npy file)", default="")
@@ -299,6 +342,7 @@ with graph.as_default():
     model = construct_graph(args)
     init = tf.global_variables_initializer()
     best_saver = tf.train.Saver(tf.global_variables(), max_to_keep=1)
+    calculate_model_memory_size()
 
 with tf.Session(graph=graph) as sess, open('log/' + str(args.save_name) + '_' + time_now + '_' + str(args.seed) + '.log', 'w') as fp:
     summary_writer = tf.summary.FileWriter('summary/%s_%s' % (str(args.save_name), str(args.seed)), graph=sess.graph)

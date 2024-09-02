@@ -64,6 +64,7 @@ if __name__ == '__main__':
             nh_all.append(n_hash)
             nb_all.append(n_buckets)
     rshape = (len(args.n_hashes_list), len(args.space_list))
+    print("rshape: ", rshape)
 
     start_t = time.time()
     pool = Pool(args.n_workers)

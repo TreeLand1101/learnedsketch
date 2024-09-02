@@ -27,12 +27,12 @@ python3 run_ip_model.py \
 
 ## inference
 
-python3 run_ip_model.py \
-    --train ./data/caida/equinix-chicago.dirA.20160121-140000.UTC.anon_00000_20160121220000.npy \
-    --valid ./data/caida/equinix-chicago.dirA.20160121-140000.UTC.anon_00001_20160121220001.npy \
-    --test  ./data/caida/equinix-chicago.dirA.20160121-140000.UTC.anon_00002_20160121220002.npy \
-    --save pred_model_20240729-190049_ep0.69 --rnn_hiddens 64 --port_hiddens 16 8 --hiddens 32 32 --batch_size 512 --n_epoch 2000 --lr 0.0001 --regress_min 65 \
-    --resume model/model_20240729-190049_ep0.69 --evaluate
+# python3 run_ip_model.py \
+#     --train ./data/caida/equinix-chicago.dirA.20160121-140000.UTC.anon_00000_20160121220000.npy \
+#     --valid ./data/caida/equinix-chicago.dirA.20160121-140000.UTC.anon_00001_20160121220001.npy \
+#     --test  ./data/caida/equinix-chicago.dirA.20160121-140000.UTC.anon_00002_20160121220002.npy \
+#     --save pred_model_20240729-190049_ep0.69 --rnn_hiddens 64 --port_hiddens 16 8 --hiddens 32 32 --batch_size 512 --n_epoch 2000 --lr 0.0001 --regress_min 65 \
+#     --resume model/model_20240729-190049_ep0.69 --evaluate
 
 
 

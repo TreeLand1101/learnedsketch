@@ -69,7 +69,7 @@ def data_to_string(data):
     return ip + proto + ports
 
 def get_data_str_with_ports(data):
-    data = np.load(data).item()
+    data = np.load(data, allow_pickle=True).item()
     data_x = data['x']
     data_y = data['y']
 
