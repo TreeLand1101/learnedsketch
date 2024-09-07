@@ -22,7 +22,11 @@ def construct_graph(args):
         data_len = tf.placeholder(tf.int32, [], name='data_len')
         keep_probs = tf.placeholder(tf.float32, [len(args.keep_probs)], name='keep_probs')
 
-        n_feat_ip = 32
+        if args.decimal_ip:
+            n_feat_ip = 4
+        else:
+            n_feat_ip = 32
+
         feat_src_ip = tf.reshape(feat[:, :n_feat_ip], [args.batch_size, n_feat_ip, 1], name='feat_src_ip')
         feat_dst_ip = tf.reshape(feat[:, n_feat_ip:n_feat_ip*2], [args.batch_size, n_feat_ip, 1], name='feat_dst_ip')
 
@@ -233,13 +237,13 @@ def calculate_model_memory_size():
             memory_category = 'non-trainable'
             non_trainable_memory_size += variable_memory_size
 
-        print(f"Variable: {variable_name}")
-        print(f"  Category: {memory_category}")
-        print(f"  Shape: {shape}")
-        print(f"  Data type: {variable_dtype} ({bytes_per_element} bytes per element)")
-        print(f"  Number of parameters: {variable_parameters}")
-        print(f"  Memory size: {variable_memory_size / 1024:.2f} KB ({variable_memory_size} bytes)")
-        print("------------------------")
+        # print(f"Variable: {variable_name}")
+        # print(f"  Category: {memory_category}")
+        # print(f"  Shape: {shape}")
+        # print(f"  Data type: {variable_dtype} ({bytes_per_element} bytes per element)")
+        # print(f"  Number of parameters: {variable_parameters}")
+        # print(f"  Memory size: {variable_memory_size / 1024:.2f} KB ({variable_memory_size} bytes)")
+        # print("------------------------")
 
     total_memory_size = trainable_memory_size + non_trainable_memory_size
     print(f"Trainable parameters memory size: {trainable_memory_size / 1024 :.2f} KB ({trainable_memory_size} bytes)")
@@ -270,6 +274,8 @@ if __name__ == '__main__':
     argparser.add_argument('--rnn_hiddens', type=int, nargs='*', default=[64], help="# of hidden units for the ip RNN layers")
     argparser.add_argument('--port_hiddens', type=int, nargs='*', default=[16, 8], help="# of hidden units for the port FC layers")
     argparser.add_argument('--hiddens', type=int, nargs='*', default=[32, 32], help="# of hidden units for the final layers")
+    argparser.add_argument('--decimal_ip', action='store_true', default=False, help="Keep the decimal format of IP addresses")
+    argparser.add_argument('--reverse_ip', action='store_true', default=False, help="Reversing the order of IP addresses in RNN timestamp features")
     args = argparser.parse_args()
 
     assert args.train != '' or args.resume_training != '',      "Must provide training data or a model"
@@ -297,16 +303,21 @@ if __name__ == '__main__':
 
     # load data
     feat_idx = np.arange(11)
-    args.n_feat = 8*8+2*16+1    # ip-> 8*8, port-> 2*16, protocol->1
+
+    if args.decimal_ip:
+        args.n_feat = 2*4+2*16+1    # ip-> 2*4, port-> 2*16, protocol->1
+    else:
+        args.n_feat = 8*8+2*16+1    # ip-> 8*8, port-> 2*16, protocol->1
+
     start_t = time.time()
 
-    train_x, train_y = get_data(args.train, feat_idx, args.n_examples)
+    train_x, train_y = get_data(args.train, feat_idx, args.n_examples, args.decimal_ip, args.reverse_ip)
     print('train x shape:', train_x.shape, 'y max', np.max(train_y), 'y min', np.min(train_y))
 
-    valid_x, valid_y = get_data(args.valid, feat_idx, args.n_examples)
+    valid_x, valid_y = get_data(args.valid, feat_idx, args.n_examples, args.decimal_ip, args.reverse_ip)
     print('valid x shape:', valid_x.shape, 'y max', np.max(valid_y), 'y min', np.min(valid_y))
 
-    test_x, test_y = get_data_list(args.test, feat_idx, args.n_examples)
+    test_x, test_y = get_data_list(args.test, feat_idx, args.n_examples, args.decimal_ip, args.reverse_ip)
     print('Load data time %.1f seconds' % (time.time() - start_t))
     if not args.evaluate:
         assert len(test_x) == 1, 'test on more than 1 minute (forgot --evaluate?)'

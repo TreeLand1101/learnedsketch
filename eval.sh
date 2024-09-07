@@ -6,11 +6,11 @@ tmin=1400
 
 # count min
 
-python3 count_min_param.py \
-    --space_list 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1 1.2 1.4 1.6 1.8 2 3 4 \
-    --n_hashes 1 2 3 4 \
-    --save cmin_ip_${tmin} --n_workers 30 \
-    --data ./data/caida/equinix-chicago.dirA.20160121-${tmin}00.UTC.anon_00000_20160121220000.npy
+# python3 count_min_param.py \
+#     --space_list 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1 1.2 1.4 1.6 1.8 2 3 4 \
+#     --n_hashes 1 2 3 4 \
+#     --save cmin_ip_${tmin} --n_workers 30 \
+#     --data ./data/caida/equinix-chicago.dirA.20160121-${tmin}00.UTC.anon_00000_20160121220000.npy
 
 # ## lookup table + count min
 
@@ -27,10 +27,10 @@ python3 cutoff_count_min_param.py \
     --space_list 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1 1.2 1.4 1.6 1.8 2 3 4 \
     --n_hashes 1 2 3 4 \
     --save cmin_ip_${tmin}_ru64 --n_workers 30 \
-    --test_data     ./data/caida/equinix-chicago.dirA.20160121-${tmin}00.UTC.anon_00000_20160121220000.npy \
-    --valid_data    ./data/caida/equinix-chicago.dirA.20160121-${tmin}00.UTC.anon_00000_20160121220000.npy \
-    --test_result   predictions/model/model_20240830-163447_ep0.69.npz \
-    --valid_result  predictions/model/model_20240830-163447_ep0.69.npz
+    --test_data     ./data/caida/equinix-chicago.dirA.20160121-140000.UTC.anon_00002_20160121220002.npy \
+    --valid_data    ./data/caida/equinix-chicago.dirA.20160121-140000.UTC.anon_00001_20160121220001.npy \
+    --test_result   ./predictions/model/model_20240903-095412_ep0.69.npz \
+    --valid_result  ./predictions/model/model_20240903-095412_ep0.69.npz
 
 # ## learned count min + perfect oracle
 

@@ -22,8 +22,24 @@ def get_stat(data_name, data_x, data_y):
 def feat_to_string(v):
     return ''.join([str(int(i)).zfill(3) for i in v])
 
-def format_data_wports(data_x, n_examples):
-    data_ip = decimal2binary(data_x[:n_examples, np.arange(8)])
+def format_data_wports(data_x, n_examples, decimal_ip, reverse_ip):
+    if decimal_ip:
+        data_ip = data_x[:n_examples, np.arange(8)]
+    else:
+        data_ip = decimal2binary(data_x[:n_examples, np.arange(8)])
+    
+    if reverse_ip:
+        if decimal_ip:
+            src_ip = data_x[:n_examples, :4]
+            dst_ip = data_x[:n_examples, 4:]
+        else:
+            src_ip = data_x[:n_examples, :32]
+            dst_ip = data_x[:n_examples, 32:]
+        reversed_src_ip = np.flip(src_ip, axis=1)
+        reversed_dst_ip = np.flip(dst_ip, axis=1)
+        np.concatenate((reversed_src_ip, reversed_dst_ip), axis=1)
+    # print("data_ip: ", data_ip)
+
     data_srcport = uint16_to_binary(data_x[:n_examples, 8].reshape(-1, 1))
     data_dstport = uint16_to_binary(data_x[:n_examples, 9].reshape(-1, 1))
     data_proto = data_x[:n_examples, 10].reshape(-1, 1)
@@ -36,14 +52,18 @@ def uint16_to_binary(x):
     assert len(x.shape) == 2 and x.shape[1] == 1
     return np.roll(np.unpackbits(x.astype(np.uint16).view(np.uint8), axis=1), 8, axis=1)
 
-def get_data(data_list, feat_idx, n_examples):
-    data_x = np.array([]).reshape(0, 8*8+2*16+1)   # src, dst, ip
+
+def get_data(data_list, feat_idx, n_examples, decimal_ip, reverse_ip):
+    if decimal_ip:
+        data_x = np.array([]).reshape(0, 2*4+2*16+1)   # src, dst, ip
+    else:
+        data_x = np.array([]).reshape(0, 8*8+2*16+1)   # src, dst, ip
 
     data_y = np.array([])
     for data in data_list:
         data = np.load(data, allow_pickle=True).item()
-        data_b = format_data_wports(data['x'], n_examples)
-        data_x = np.concatenate((data_x, data_b))
+        data_feature = format_data_wports(data['x'], n_examples, decimal_ip, reverse_ip)
+        data_x = np.concatenate((data_x, data_feature))
         data_y = np.concatenate((data_y, data['y'][:n_examples]))
 
     print("data_x: ", data_x)
@@ -52,13 +72,13 @@ def get_data(data_list, feat_idx, n_examples):
     print("data_y.shape: ", data_y.shape)
     return data_x, data_y
 
-def get_data_list(data_list, feat_idx, n_examples):
+def get_data_list(data_list, feat_idx, n_examples, decimal_ip, reverse_ip):
     data_x = []
     data_y = []
     for data in data_list:
         data = np.load(data, allow_pickle=True).item()
-        data_b = format_data_wports(data['x'], n_examples)
-        data_x.append(data_b)
+        data_feature = format_data_wports(data['x'], n_examples, decimal_ip, reverse_ip)
+        data_x.append(data_feature)
         data_y.append(data['y'][:n_examples])
     return data_x, data_y
 

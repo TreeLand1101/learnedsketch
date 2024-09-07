@@ -4,10 +4,10 @@
 ## training
 
 python3 run_ip_model.py \
-    --train ./data/caida/equinix-chicago.dirA.20160121-140000.UTC.anon_00000_20160121220000.npy \
-    --valid ./data/caida/equinix-chicago.dirA.20160121-140000.UTC.anon_00001_20160121220001.npy \
-    --test  ./data/caida/equinix-chicago.dirA.20160121-140000.UTC.anon_00002_20160121220002.npy \
-    --save model --rnn_hiddens 64 --port_hiddens 16 8 --hiddens 32 32 --batch_size 256 --n_epoch 5 --eval_n_epochs 5 --lr 0.0001 --regress_min 65
+    --train ./data/caida/equinix-chicago.dirA.20160121-140000.UTC.anon.npy \
+    --valid ./data/caida/equinix-chicago.dirA.20160121-140100.UTC.anon.npy \
+    --test  ./data/caida/equinix-chicago.dirA.20160121-140200.UTC.anon.npy \
+    --save model --rnn_hiddens 64 --port_hiddens 16 8 --hiddens 32 32 --batch_size 256 --n_epoch 20 --eval_n_epochs 1 --lr 0.0001 --regress_min 65 --reverse_ip
 
 ## resume training from an earlier model checkpoint
 
