@@ -23,6 +23,10 @@ def feat_to_string(v):
     return ''.join([str(int(i)).zfill(3) for i in v])
 
 def format_data_wports(data_x, n_examples, decimal_ip, reverse_ip):
+    
+    print("data_x[0]: ", data_x[0])
+    print("data_x.shape: ", data_x.shape)
+
     if decimal_ip:
         data_ip = data_x[:n_examples, np.arange(8)]
     else:
@@ -30,19 +34,17 @@ def format_data_wports(data_x, n_examples, decimal_ip, reverse_ip):
     
     if reverse_ip:
         if decimal_ip:
-            src_ip = data_x[:n_examples, :4]
-            dst_ip = data_x[:n_examples, 4:]
+            data_ip = np.hstack([np.flip(data_ip[:, :4], axis=1), np.flip(data_ip[:, 4:], axis=1)])
         else:
-            src_ip = data_x[:n_examples, :32]
-            dst_ip = data_x[:n_examples, 32:]
-        reversed_src_ip = np.flip(src_ip, axis=1)
-        reversed_dst_ip = np.flip(dst_ip, axis=1)
-        np.concatenate((reversed_src_ip, reversed_dst_ip), axis=1)
-    # print("data_ip: ", data_ip)
+            data_ip = np.hstack([np.flip(data_ip[:, :32], axis=1), np.flip(data_ip[:, 32:], axis=1)])
+
+    print("data_ip[0]: ", data_ip[0])
+    print("data_ip.shape: ", data_ip.shape)
 
     data_srcport = uint16_to_binary(data_x[:n_examples, 8].reshape(-1, 1))
     data_dstport = uint16_to_binary(data_x[:n_examples, 9].reshape(-1, 1))
     data_proto = data_x[:n_examples, 10].reshape(-1, 1)
+    
     return np.concatenate((data_ip, data_srcport, data_dstport, data_proto), axis=1)
 
 def decimal2binary(x):
@@ -66,10 +68,10 @@ def get_data(data_list, feat_idx, n_examples, decimal_ip, reverse_ip):
         data_x = np.concatenate((data_x, data_feature))
         data_y = np.concatenate((data_y, data['y'][:n_examples]))
 
-    print("data_x: ", data_x)
-    print("data_x.shape: ", data_x.shape)
-    print("data_y: ", data_y)
-    print("data_y.shape: ", data_y.shape)
+    # print("data_x[0]: ", data_x[0])
+    # print("data_x.shape: ", data_x.shape)
+    # print("data_y[0]: ", data_y[0])
+    # print("data_y.shape: ", data_y.shape)
     return data_x, data_y
 
 def get_data_list(data_list, feat_idx, n_examples, decimal_ip, reverse_ip):
