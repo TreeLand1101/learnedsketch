@@ -5,14 +5,15 @@ import argparse
 import random
 import datetime
 import numpy as np
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
+tf.disable_v2_behavior()
 
 from utils.utils import get_stat, git_log, AverageMeter, keep_latest_files, get_data, get_data_list
 from utils.nn_utils import fc_layers, write_summary
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
 # os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
-tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
+tf.logging.set_verbosity(tf.logging.ERROR)
 
 def construct_graph(args):
     with tf.variable_scope("nhh"):
