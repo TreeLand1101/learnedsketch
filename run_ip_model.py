@@ -172,7 +172,7 @@ def run_training(model, train_x, train_y, valid_x, valid_y, test_x, test_y, args
         train_loss, ite = train(model, train_x, train_y, args, sess, ite, summary_writer)
         train_time = time.time() - start_t
 
-        if ep % args.eval_n_epochs == 0:
+        if (ep + 1) % args.eval_n_epochs == 0:
             start_t = time.time()
             valid_loss, valid_output = evaluate(model, valid_x, valid_y, args, sess, ite, summary_writer, name='valid')
             test_loss, test_output = evaluate(model, test_x, test_y, args, sess, ite, summary_writer, name='test')
