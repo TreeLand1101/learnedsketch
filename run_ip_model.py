@@ -5,15 +5,14 @@ import argparse
 import random
 import datetime
 import numpy as np
-import tensorflow.compat.v1 as tf
-tf.disable_v2_behavior()
+import tensorflow as tf
 
 from utils.utils import get_stat, git_log, AverageMeter, keep_latest_files, get_data, get_data_list
 from utils.nn_utils import fc_layers, write_summary
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
-# os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
-tf.logging.set_verbosity(tf.logging.ERROR)
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 
 def construct_graph(args):
     with tf.variable_scope("nhh"):
@@ -167,12 +166,12 @@ def run_training(model, train_x, train_y, valid_x, valid_y, test_x, test_y, args
     ite = args.start_epoch * n_batch_per_ep + 1
     best_eval_loss = sys.float_info.max
 
-    for ep in range(args.start_epoch, args.n_epochs):
+    for ep in range(args.start_epoch + 1, args.n_epochs + 1):
         start_t = time.time()
         train_loss, ite = train(model, train_x, train_y, args, sess, ite, summary_writer)
         train_time = time.time() - start_t
 
-        if (ep + 1) % args.eval_n_epochs == 0:
+        if ep % args.eval_n_epochs == 0:
             start_t = time.time()
             valid_loss, valid_output = evaluate(model, valid_x, valid_y, args, sess, ite, summary_writer, name='valid')
             test_loss, test_output = evaluate(model, test_x, test_y, args, sess, ite, summary_writer, name='test')

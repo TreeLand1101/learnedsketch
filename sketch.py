@@ -169,6 +169,7 @@ def cutoff_lookup(x, y, n_cm_buckets, n_hashes, d_lookup, y_cutoff, sketch='Coun
     print('\t# uniq', len(y_ccm), '# cm', len(y_cm))
 
     space = len(y_ccm) * 4 * 2 + n_cm_buckets * n_hashes * 4
+
     return loss_avg, space
 
 def random_hash_with_sign(y, n_buckets):
