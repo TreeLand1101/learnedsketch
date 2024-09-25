@@ -3,6 +3,8 @@ import re
 import argparse
 import matplotlib.pyplot as plt
 
+plt.style.use('seaborn-whitegrid')
+
 epoch_pattern = epoch_pattern = r"(?:.|\n)*?epoch (\d+), training loss ([\d.]+) \(\d+.\d+ sec\)(?:, valid loss ([\d.]+), test loss ([\d.]+))?"
 
 def parse_log_file(file_path):
@@ -45,11 +47,11 @@ def plot_losses(log_files, losses_data, loss_type, x_lim=None, y_lim=None):
             log_name = os.path.splitext(log_file)[0]
             ax.plot(epochs_list, values, label=log_name)
 
-            ax.annotate(log_file,
+            ax.annotate(log_name,
                         xy=(epochs_list[-1], values[-1]),
                         xytext=(5, 0), 
                         textcoords='offset points',
-                        fontsize=10,
+                        fontsize=14,
                         color=ax.get_lines()[-1].get_color()) 
 
     if x_lim:
@@ -58,8 +60,8 @@ def plot_losses(log_files, losses_data, loss_type, x_lim=None, y_lim=None):
         ax.set_ylim(y_lim)
 
     ax.set_xlabel('Epochs')
-    ax.set_ylabel(f'{loss_type.capitalize()} Loss')
-    ax.set_title(f'{loss_type.capitalize()} Loss Comparison Across Methods')
+    ax.set_ylabel(f'{loss_type.capitalize()}')
+    ax.set_title(f'{loss_type.capitalize()}')
     ax.legend()
     plt.show()
 

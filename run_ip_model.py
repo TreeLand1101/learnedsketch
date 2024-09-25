@@ -343,53 +343,52 @@ if __name__ == '__main__':
     data_stat += get_stat('valid', valid_x, valid_y)
     for i in range(len(test_x)):
         data_stat += get_stat('test', test_x[i], test_y[i])
-# Assuming args is defined with the required attributes
-time_now = datetime.datetime.now().strftime('%Y%m%d-%H%M%S')
 
-gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=args.memory)
-graph = tf.Graph()
-
-with graph.as_default():
     model = construct_graph(args)
     init = tf.global_variables_initializer()
     best_saver = tf.train.Saver(tf.global_variables(), max_to_keep=1)
     calculate_model_memory_size()
 
-with tf.Session(graph=graph) as sess, open('log/' + str(args.save_name) + '_' + time_now + '_' + str(args.seed) + '.log', 'w') as fp:
-    summary_writer = tf.summary.FileWriter('summary/%s_%s' % (str(args.save_name), str(args.seed)), graph=sess.graph)
-    fp.write(' '.join(sys.argv) + '\n')
-    fp.write(git_log() + '\n')
-    fp.write(data_stat + '\n')
+    # set seeds
+    gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=args.memory)
+    time_now = datetime.datetime.now().strftime('%Y%m%d-%H%M%S')
 
-    sess.run(init)
+    with tf.Session(config=tf.ConfigProto(gpu_options=gpu_options)) as sess, open('log/'+str(args.save_name)+'_'+time_now+'_'+str(args.seed)+'.log','w') as fp:
+        summary_writer = tf.summary.FileWriter('summary/%s_%s' % (str(args.save_name), str(args.seed)), graph=tf.get_default_graph())
+        fp.write(' '.join(sys.argv)+'\n')
+        fp.write(git_log()+'\n')
+        fp.write(data_stat+'\n')
 
-    if args.resume_training != "":
-        best_saver.restore(sess, args.resume_training)
-        s = 'resume training from %s, start_epoch %d\n' % (args.resume_training, args.start_epoch)
-        fp.write(s)
-        print(s)
+        sess.run(init)
 
-    if not args.evaluate:
-        run_training(model, train_x, train_y, valid_x, valid_y, test_x[0], test_y[0], args, sess, summary_writer)
-    else:
-        start_t = time.time()
-        train_loss, train_output = evaluate(model, train_x, train_y, args, sess)
-        valid_loss, valid_output = evaluate(model, valid_x, valid_y, args, sess)
+        if args.resume_training != "":
+            best_saver.restore(sess, args.resume_training)
+            s = 'resume training from %s, start_epoch %d\n' % (args.resume_training, args.start_epoch)
+            fp.write(s)
+            print(s)
 
-        test_loss_all = []
-        test_output_all = []
-        for i in range(len(test_x)):
-            test_loss, test_output = evaluate(model, test_x[i], test_y[i], args, sess)
-            test_loss_all.append(test_loss)
-            test_output_all.append(test_output)
-            print('test %d, \ttime %.2f sec' % (i, time.time() - start_t))
+        if not args.evaluate:
+            run_training(model, train_x, train_y, valid_x, valid_y,
+                    test_x[0], test_y[0], args, sess, summary_writer)
+        else:
+            start_t = time.time()
+            train_loss, train_output = evaluate(model, train_x, train_y, args, sess)
+            valid_loss, valid_output = evaluate(model, valid_x, valid_y, args, sess)
 
-        np.savez(args.save_name + '_res',
-            train_output=train_output,
-            valid_output=valid_output,
-            test_output=test_output_all,
-            test_loss=test_loss_all,
-        )
+            test_loss_all = []
+            test_output_all = []
+            for i in range(len(test_x)):
+                test_loss, test_output = evaluate(model, test_x[i], test_y[i], args, sess)
+                test_loss_all.append(test_loss)
+                test_output_all.append(test_output)
+                print('test %d, \ttime %.2f sec' % (i, time.time() - start_t))
 
-        eval_time = time.time() - start_t
-        print('evaluation time %.2f sec' % eval_time)
+            np.savez(args.save_name+'_res',
+                train_output=train_output,
+                valid_output=valid_output,
+                test_output=test_output_all,
+                test_loss=test_loss_all,
+                )
+
+            eval_time = time.time() - start_t
+            print('evalutation time %.2f sec' % eval_time)
