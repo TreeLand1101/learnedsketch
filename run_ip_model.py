@@ -77,9 +77,7 @@ def construct_graph(args):
         optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate)
         update_op = optimizer.minimize(loss)
 
-        # Add summaries for TensorBoard
         tf.summary.scalar('loss', loss)
-        merged_summary_op = tf.summary.merge_all()
 
         print('Finished constructing the graph')
 
@@ -92,7 +90,6 @@ def construct_graph(args):
         'data_len': data_len,
         'keep_probs': keep_probs,
         'output': output,
-        'merged_summary_op': merged_summary_op
     }
 
     return model
@@ -301,7 +298,6 @@ if __name__ == '__main__':
         if not os.path.exists(folder):
             os.makedirs(folder)
 
-    # load data
     feat_idx = np.arange(11)
 
     if args.decimal_ip:
@@ -349,7 +345,6 @@ if __name__ == '__main__':
     best_saver = tf.train.Saver(tf.global_variables(), max_to_keep=1)
     calculate_model_memory_size()
 
-    # set seeds
     gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=args.memory)
     time_now = datetime.datetime.now().strftime('%Y%m%d-%H%M%S')
 
