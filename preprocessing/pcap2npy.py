@@ -101,7 +101,11 @@ def log_analysis(sorted_flows, timestamps, log_file, logger):
     unique_flows = len(sorted_flows)
     min_packet_count = min(count for _, count in sorted_flows)
     max_packet_count = max(count for _, count in sorted_flows)
-    packets_per_second = total_packets
+
+    if duration > 0: 
+        packets_per_second = total_packets / duration  
+    else:
+        packets_per_second = 0
 
     # Log these metrics only once
     log_message = (
