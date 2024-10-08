@@ -7,7 +7,7 @@ python3 run_ip_model.py \
     --train ./data/caida/equinix-chicago.dirA.20160121-140000.UTC.anon_00000_20160121220000.npy \
     --valid ./data/caida/equinix-chicago.dirA.20160121-140000.UTC.anon_00001_20160121220001.npy \
     --test ./data/caida/equinix-chicago.dirA.20160121-140000.UTC.anon_00002_20160121220002.npy \
-    --save binary_ip --rnn_hiddens 64 --port_hiddens 16 8 --hiddens 32 32 --batch_size 512 --n_epoch 10 --eval_n_epochs 5 --lr 0.0001 --regress_min 65
+    --save binary_ip --rnn_hiddens 64 --port_hiddens 16 8 --hiddens 32 32 --batch_size 512 --n_epoch 5 --eval_n_epochs 5 --lr 0.0001 --regress_min 65
     # --resume model/decimal_ip_20240909-093811_ep10.69 --start_epoch 10 --eval_n 5
 
 ## resume training from an earlier model checkpoint

@@ -24,8 +24,8 @@ def feat_to_string(v):
 
 def format_data_wports(data_x, n_examples, decimal_ip, reverse_ip):
     
-    print("data_x[0]: ", data_x[0])
-    print("data_x.shape: ", data_x.shape)
+    # print("data_x[0]: ", data_x[0])
+    # print("data_x.shape: ", data_x.shape)
 
     if decimal_ip:
         data_ip = data_x[:n_examples, np.arange(8)]
@@ -38,8 +38,8 @@ def format_data_wports(data_x, n_examples, decimal_ip, reverse_ip):
         else:
             data_ip = np.hstack([np.flip(data_ip[:, :32], axis=1), np.flip(data_ip[:, 32:], axis=1)])
 
-    print("data_ip[0]: ", data_ip[0])
-    print("data_ip.shape: ", data_ip.shape)
+    # print("data_ip[0]: ", data_ip[0])
+    # print("data_ip.shape: ", data_ip.shape)
 
     data_srcport = uint16_to_binary(data_x[:n_examples, 8].reshape(-1, 1))
     data_dstport = uint16_to_binary(data_x[:n_examples, 9].reshape(-1, 1))

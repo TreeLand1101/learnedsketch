@@ -22,22 +22,15 @@ def construct_graph(args):
         data_len = tf.placeholder(tf.int32, [], name='data_len')
         keep_probs = tf.placeholder(tf.float32, [len(args.keep_probs)], name='keep_probs')
 
-        if args.decimal_ip:
-            n_feat_ip = 4
-        else:
-            n_feat_ip = 32
-
-        feat_src_ip = tf.reshape(feat[:, :n_feat_ip], [args.batch_size, n_feat_ip, 1], name='feat_src_ip')
-        feat_dst_ip = tf.reshape(feat[:, n_feat_ip:n_feat_ip*2], [args.batch_size, n_feat_ip, 1], name='feat_dst_ip')
-
-        tf.summary.histogram('feat_src_ip', feat_src_ip)
-        tf.summary.histogram('feat_dst_ip', feat_dst_ip)
+        n_feat_ip = 32
+        feat_src_ip = tf.reshape(feat[:,:n_feat_ip], [args.batch_size, n_feat_ip, 1])
+        feat_dst_ip = tf.reshape(feat[:,n_feat_ip:n_feat_ip*2], [args.batch_size, n_feat_ip, 1])
 
         src_rnn_layers = []
         dst_rnn_layers = []
         for hidden_size in args.rnn_hiddens:
-            src_rnn_layers.append(tf.nn.rnn_cell.LSTMCell(hidden_size, name=f'src_rnn_cell_{hidden_size}'))
-            dst_rnn_layers.append(tf.nn.rnn_cell.LSTMCell(hidden_size, name=f'dst_rnn_cell_{hidden_size}'))
+            src_rnn_layers.append(tf.nn.rnn_cell.LSTMCell(hidden_size))
+            dst_rnn_layers.append(tf.nn.rnn_cell.LSTMCell(hidden_size))
 
         src_multi_rnn_cell = tf.nn.rnn_cell.MultiRNNCell(src_rnn_layers)
         dst_multi_rnn_cell = tf.nn.rnn_cell.MultiRNNCell(dst_rnn_layers)
@@ -45,53 +38,43 @@ def construct_graph(args):
         src_rnn_outputs, src_rnn_state = tf.nn.dynamic_rnn(cell=src_multi_rnn_cell, inputs=feat_src_ip, dtype=tf.float32, scope='rnn_src_ip')
         dst_rnn_outputs, dst_rnn_state = tf.nn.dynamic_rnn(cell=dst_multi_rnn_cell, inputs=feat_dst_ip, dtype=tf.float32, scope='rnn_dst_ip')
 
-        tf.summary.histogram('src_rnn_outputs', src_rnn_outputs)
-        tf.summary.histogram('dst_rnn_outputs', dst_rnn_outputs)
-
         src_lstm_state = src_rnn_state[-1][0]
         dst_lstm_state = dst_rnn_state[-1][0]
 
+        # src and dst ports
         n_feat_port = 16
         enc1_hidden_len = [n_feat_port] + args.port_hiddens
         enc2_hidden_len = [n_feat_port] + args.port_hiddens
 
-        feat_src_port = feat[:, n_feat_ip*2:n_feat_ip*2+n_feat_port]
-        feat_dst_port = feat[:, n_feat_ip*2+n_feat_port:n_feat_ip*2+n_feat_port*2]
+        feat_src_port = feat[:,n_feat_ip*2:n_feat_ip*2+n_feat_port]
+        feat_dst_port = feat[:,n_feat_ip*2+n_feat_port:n_feat_ip*2+n_feat_port*2]
         src_port_out, _, _ = fc_layers(feat_src_port, enc1_hidden_len, np.ones(len(enc1_hidden_len)), name='fc_encoder_src_port', activation=args.activation, summary_layers=[])
         dst_port_out, _, _ = fc_layers(feat_dst_port, enc2_hidden_len, np.ones(len(enc2_hidden_len)), name='fc_encoder_dst_port', activation=args.activation, summary_layers=[])
 
-        tf.summary.histogram('src_port_out', src_port_out)
-        tf.summary.histogram('dst_port_out', dst_port_out)
+        # protocol
+        proto_out = tf.reshape(feat[:,-1], [args.batch_size, 1])
 
-        proto_out = tf.reshape(feat[:, -1], [args.batch_size, 1])
-
-        output = tf.concat([src_lstm_state, dst_lstm_state, src_port_out, dst_port_out, proto_out], axis=1, name='concat_output')
+        # combine all features
+        output = tf.concat([src_lstm_state, dst_lstm_state, src_port_out, dst_port_out, proto_out], axis=1)
         hidden_len = [args.rnn_hiddens[-1]*2 + args.port_hiddens[-1]*2 + 1] + args.hiddens + [1]
         output, weights, bias = fc_layers(output, hidden_len, keep_probs, name='fc_encoder', activation=args.activation, summary_layers=[])
 
-        tf.summary.histogram('output', output)
-
-        output = tf.squeeze(output, name='final_output')
+        output = tf.squeeze(output)
         loss = tf.losses.mean_squared_error(labels=labels[:data_len], predictions=output[:data_len])
 
         optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate)
         update_op = optimizer.minimize(loss)
+        print('finished constructing the graph')
 
-        tf.summary.scalar('loss', loss)
-
-        print('Finished constructing the graph')
-
-    model = {
-        'feat': feat,
-        'labels': labels,
-        'learning_rate': learning_rate,
-        'update_op': update_op,
-        'loss': loss,
-        'data_len': data_len,
-        'keep_probs': keep_probs,
-        'output': output,
-    }
-
+    model = {}
+    model['feat'] = feat
+    model['labels'] = labels
+    model['learning_rate'] = learning_rate
+    model['update_op'] = update_op
+    model['loss'] = loss
+    model['data_len'] = data_len
+    model['keep_probs'] = keep_probs
+    model['output'] = output
     return model
 
 def train(model, x, y, args, sess, ite, writer, idx=None):
@@ -102,6 +85,7 @@ def train(model, x, y, args, sess, ite, writer, idx=None):
 
     loss_meter = AverageMeter()
 
+    # prepare the indices in advance
     for i in range(0, len(y), args.batch_size):
         batch_idx = idx[i:i+args.batch_size]
         batch_x = x[batch_idx]
@@ -118,19 +102,14 @@ def train(model, x, y, args, sess, ite, writer, idx=None):
             model['data_len']: n_flows,
             model['keep_probs']: args.keep_probs,
             }
-
-        _, loss_b, summary = sess.run([model['update_op'], model['loss'], model['merged_summary_op']], feed_dict=input_feed)
+        _, loss_b = sess.run([model['update_op'], model['loss']], feed_dict=input_feed)
         loss_meter.update(loss_b)
-        
-        # Write summary
-        writer.add_summary(summary, ite)
 
         if ite % 100 == 0:
             write_summary(writer, 'train loss', loss_b, ite)
         ite = ite + 1
 
     return loss_meter.avg, ite
-
 
 def evaluate(model, x, y, args, sess, ite=None, writer=None, name=''):
     loss_meter = AverageMeter()
@@ -174,12 +153,14 @@ def run_training(model, train_x, train_y, valid_x, valid_y, test_x, test_y, args
             test_loss, test_output = evaluate(model, test_x, test_y, args, sess, ite, summary_writer, name='test')
             eval_time = time.time() - start_t
 
+            # save the best model from validation
+
             if valid_loss < best_eval_loss:
                 best_eval_loss = valid_loss
                 file_name = str(args.save_name)+'_'+time_now+'_ep'+str(ep)+'.'+str(args.seed)
                 best_saver.save(sess, 'model/'+file_name)
 
-                folder = os.path.join('./predictions/', args.save_name, '')
+                folder = os.path.join('./predictions/', args.save_name, '') # '' for trailing slash
                 if not os.path.exists(folder):
                     os.makedirs(folder)
 
@@ -201,16 +182,14 @@ def run_training(model, train_x, train_y, valid_x, valid_y, test_x, test_y, args
 
 
 def calculate_model_memory_size():
-    
-    total_memory_size = 0
-
     dtype_size_map = {
         'float32': 4,
         'float64': 8,
         'int32': 4,
         'int64': 8,
     }
-
+    
+    total_memory_size = 0
     trainable_memory_size = 0
     non_trainable_memory_size = 0
 
@@ -298,6 +277,7 @@ if __name__ == '__main__':
         if not os.path.exists(folder):
             os.makedirs(folder)
 
+    # load data
     feat_idx = np.arange(11)
 
     if args.decimal_ip:
@@ -344,6 +324,8 @@ if __name__ == '__main__':
     init = tf.global_variables_initializer()
     best_saver = tf.train.Saver(tf.global_variables(), max_to_keep=1)
     calculate_model_memory_size()
+
+    # set seeds
 
     gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=args.memory)
     time_now = datetime.datetime.now().strftime('%Y%m%d-%H%M%S')

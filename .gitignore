@@ -8,7 +8,6 @@ predictions/
 summary/
 plotting/*.txt
 plotting/*.log
-caida_preprocessing/*.npy
-caida_preprocessing/*.npz
-caida_preprocessing/*pcap 
+preprocessing/aol/*
+preprocessing/caida/*
 *Zone.Identifier
