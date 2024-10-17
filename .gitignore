@@ -8,6 +8,7 @@ predictions/
 summary/
 plotting/*.txt
 plotting/*.log
+plotting/*.png
 preprocessing/aol/*
 preprocessing/caida/*
 *Zone.Identifier

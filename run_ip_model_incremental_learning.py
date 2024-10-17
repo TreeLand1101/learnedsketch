@@ -49,7 +49,6 @@ def inference(model, x, y, args, width=10000, depth=5):
     not_heavy_flows_count = 0
     heavy_flows_count = 0
     underestimated_flows_count = 0
-    current_packet_count = 0
 
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
